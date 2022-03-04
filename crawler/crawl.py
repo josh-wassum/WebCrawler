@@ -1,14 +1,31 @@
-import urllib.robotparser as urobot
 import urllib.request
+from urllib.parse import urljoin
 import logging
 import requests
 from bs4 import BeautifulSoup
 
 class Crawl():
-    def __init__ (self, url, has_robots, rp):
+    '''This class handles each crawl instance and writes data to the various locations
+    to track crawl.
+        Stereotype:
+            Information Holder
+        Attributes:
+            self.url (String): a url string.
+            self.has_robots (Boolean): Indicates whether or not the url has a robots.txt file.
+            self.rp (urobot.RobotFileParser()): Instance of the urobot.RobotFileParser() object.
+            self.base_url (String): A string of the base url of the site.
+            self.validator (Validator): An instance of the Validator object.
+    '''
+
+    # Initializes the class variables.
+    def __init__ (self, url, has_robots, rp, base_url, validator):
         self.url = url
         self.has_robots = has_robots
         self.rp = rp
+        self.base_url = base_url
+        self.validator = validator
+
+    # Loops through a web page and grabs all urls found on the page.
     def get_all_url(self):
 
         if self.rp.can_fetch("*",self.url) or not self.has_robots:
@@ -29,7 +46,7 @@ class Crawl():
                 # Get the HTML a tag href attribute value.
                 href_value = str(tag.get('href'))
                 if not 'http' in href_value:
-                    href_value = self.url + "/" + href_value
+                    href_value = urljoin(self.base_url, href_value)
 
                 if href_value.split('#') not in url_list:
                     url_list.append(href_value)
@@ -41,17 +58,14 @@ class Crawl():
             for url in final_url_list:
                 page = requests.head(url)
                 f = open('res/crawl-entry-point.txt', 'a+')
-                urls = f.readlines()
-                if page.status_code < 400 and url not in urls:
+                if page.status_code < 400 and not self.validator.has_added_to_entry(url):
                     f.write(f'{url}\n')
 
-                # TEST
-                print(url)
-                print(page.status_code)
+                    # Adds the url to the list of crawled urls.
+                    self.validator.add_to_file_list(url)
+                
+                # Logs all urls to a log file.
                 logging.info('Page status for {} is: {}'.format(url,page.status_code))
             f.close()
-
         else:
             print("Can't scrape.")
-
-    
