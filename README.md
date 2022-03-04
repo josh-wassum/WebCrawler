@@ -1,6 +1,5 @@
 # Overview
 
-{Provide a description the software that you wrote.}
 This is a web crawler using Beautiful Soup and the Requests libraries in python. The crawler takes user input and validates whether or not the url is a valid url. If it is it then crawls the initial page and creates a entry_point list within a txt file. We then call a file_crawl object that allows us to loop through and crawl all items found within this entry_point file and log them using a log file and within the entry point file. Using some simple logic we are able to ensure that each item added to the crawl_entry point file is unique and does not already exist within the file. 
 
 Eventually this application will also include a web based component to allow a user to run the crawl from the web and view a graph of the data. Currently we can only crawl the urls found on the initial url provided, however eventually I will add functionality to allow a user to crawl an entire site. Lastly the crawler automatically checks for a robots.txt file, however in the future I would to make it so that the user can specify whether or not they want to check for a robots.txt file.
